@@ -7,7 +7,7 @@
 #include <jdbc/cppconn/prepared_statement.h>
 
 
-
+///helper function, similar to the 'implode' fn in PHP
 std::string implode(const std::vector<std::string>& vec, const std::string& separator) {
     std::string result;
     for (size_t i = 0; i < vec.size(); ++i) {
@@ -19,6 +19,12 @@ std::string implode(const std::vector<std::string>& vec, const std::string& sepa
     return result;
 }
 
+
+/**
+* Custome ORM basically copied my implementation in php to simplify my work
+* heres the original impl - https://github.com/munenepeter/dev-chungu/blob/main/Core/Database/QueryBuilder.php
+*/
+
 class QueryBuilder {
 private:
   sql::Connection* connection;
@@ -27,7 +33,7 @@ public:
   QueryBuilder(sql::Connection* connection) {
     this->connection = connection;
   }
-
+//abstraction to run all queries to avoid code duplication
   std::vector<std::vector<std::string>> runQuery(std::string sql) {
     sql::Statement* statement = connection->createStatement();
     sql::ResultSet* resultSet = statement->executeQuery(sql);
@@ -55,7 +61,7 @@ public:
     std::string sql = "SELECT " + implode(values, ",") + " FROM " + table;
     return runQuery(sql);
   }
-
+//slelect where from the db
   std::vector<std::vector<std::string>> selectWhere(std::string table, std::vector<std::string> values, std::vector<std::string> condition) {
     std::string sql = "SELECT " + implode(values, ",") + " FROM " + table + " WHERE ";
     for (int i = 0; i < condition.size(); i++) {
@@ -67,19 +73,19 @@ public:
     }
     return runQuery(sql);
   }
-
+//update a col in db
   bool update(std::string table, std::string dataToUpdate, std::string where, std::string isValue) {
     std::string sql = "UPDATE " + table + " SET " + dataToUpdate + " WHERE `" + where + "` = \"" + isValue + "\"";
-    runQuery(sql);  // Assuming update is successful if the query runs without exceptions
+    runQuery(sql);  
     return true;
   }
-
+//delete a col in db
   bool deleteRow(std::string table, std::string column, std::string isValue) {
     std::string sql = "DELETE FROM " + table + " WHERE `" + column + "` = \"" + isValue + "\"";
-    runQuery(sql);  // Assuming deletion is successful if the query runs without exceptions
+    runQuery(sql);  
     return true;
   }
-
+//insert a col in db
   bool insert(std::string table, std::vector<std::string> parameters) {
     std::string placeholders;
     std::string values;
@@ -93,7 +99,7 @@ public:
     }
 
     std::string sql = "INSERT INTO " + table + " (" + placeholders + ") VALUES (" + values + ")";
-    runQuery(sql);  // Assuming insertion is successful if the query runs without exceptions
+    runQuery(sql);  
     return true;
   }
 };
