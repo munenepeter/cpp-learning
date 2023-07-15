@@ -107,7 +107,7 @@ public:
 
 
 int main() {
-    //intiate the driver
+    //instantiate the driver
   sql::mysql::MySQL_Driver* driver;
   sql::Connection* connection;
 
@@ -116,10 +116,12 @@ int main() {
     driver = sql::mysql::get_mysql_driver_instance();
     connection = driver->connect("tcp://127.0.0.1:3307", "root", "peter");
     connection->setSchema("studentz");
-    //call the querybuildrr
+    //call the custom QueryBuilder 
     QueryBuilder queryBuilder(connection);
+      // select everything from the users table 
     std::vector<std::vector<std::string>> results = queryBuilder.selectAll("users");
-    for (const auto& row : results) {
+    //loop to display db results
+      for (const auto& row : results) {
       for (const auto& value : row) {
         std::cout << value << " ";
       }
