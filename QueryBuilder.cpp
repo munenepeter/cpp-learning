@@ -21,8 +21,8 @@ std::string implode(const std::vector<std::string>& vec, const std::string& sepa
 
 
 /**
-* Custome ORM basically copied my implementation in php to simplify my work
-* heres the original impl - https://github.com/munenepeter/dev-chungu/blob/main/Core/Database/QueryBuilder.php
+* Custom ORM basically copied my implementation in php to simplify my work
+* original impl - https://github.com/munenepeter/dev-chungu/blob/main/Core/Database/QueryBuilder.php
 */
 
 class QueryBuilder {
@@ -52,16 +52,17 @@ public:
     delete statement;
     return results;
   }
+ //SELECT * FROM {table} ORDER BY `created_at` DESC;
   std::vector<std::vector<std::string>> selectAll(std::string table) {
     std::string sql = "SELECT * FROM " + table + " ORDER BY `created_at` DESC;";
     return runQuery(sql);
   }
-
+//SELECT * FROM {table};
   std::vector<std::vector<std::string>> select(std::string table, std::vector<std::string> values) {
     std::string sql = "SELECT " + implode(values, ",") + " FROM " + table;
     return runQuery(sql);
   }
-//slelect where from the db
+//SELECT {col1, col2, ...} FROM {table} WHERE {condtion} {value};
   std::vector<std::vector<std::string>> selectWhere(std::string table, std::vector<std::string> values, std::vector<std::string> condition) {
     std::string sql = "SELECT " + implode(values, ",") + " FROM " + table + " WHERE ";
     for (int i = 0; i < condition.size(); i++) {
@@ -73,19 +74,19 @@ public:
     }
     return runQuery(sql);
   }
-//update a col in db
+//UPDATE {table} SET {newvalue} WHERE {oldvalue} = {value}
   bool update(std::string table, std::string dataToUpdate, std::string where, std::string isValue) {
     std::string sql = "UPDATE " + table + " SET " + dataToUpdate + " WHERE `" + where + "` = \"" + isValue + "\"";
     runQuery(sql);  
     return true;
   }
-//delete a col in db
+//DELETE FROM {table} WHERE {col} = {value}
   bool deleteRow(std::string table, std::string column, std::string isValue) {
     std::string sql = "DELETE FROM " + table + " WHERE `" + column + "` = \"" + isValue + "\"";
     runQuery(sql);  
     return true;
   }
-//insert a col in db
+//INSERT INTO {table} {:col1, :col2, ...} VALUES({val1,val2,...})
   bool insert(std::string table, std::vector<std::string> parameters) {
     std::string placeholders;
     std::string values;
@@ -106,14 +107,16 @@ public:
 
 
 int main() {
+    //intiate the driver
   sql::mysql::MySQL_Driver* driver;
   sql::Connection* connection;
 
   try {
+      //set the values of the sql server to read from
     driver = sql::mysql::get_mysql_driver_instance();
     connection = driver->connect("tcp://127.0.0.1:3307", "root", "peter");
     connection->setSchema("studentz");
-
+    //call the querybuildrr
     QueryBuilder queryBuilder(connection);
     std::vector<std::vector<std::string>> results = queryBuilder.selectAll("users");
     for (const auto& row : results) {
@@ -125,7 +128,7 @@ int main() {
   } catch (sql::SQLException& e) {
     std::cerr << "SQL Exception: " << e.what() << std::endl;
   }
-
+  //close db connection
   delete connection;
   return 0;
 }
